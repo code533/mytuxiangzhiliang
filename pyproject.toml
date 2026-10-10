@@ -23,6 +23,7 @@ dev = ["pytest>=7"]
 vio-iqa = "vio_iqa.cli:main"
 vio-iqa-exp001 = "vio_iqa.exp001:main"
 vio-iqa-exp002 = "vio_iqa.exp002:main"
+vio-iqa-exp003 = "vio_iqa.exp003:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
