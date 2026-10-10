@@ -12,6 +12,7 @@ dependencies = [
   "opencv-python-headless>=4.7",
   "pandas>=2.0",
   "scipy>=1.10",
+  "PyYAML>=6.0",
   "scikit-learn>=1.2",
   "matplotlib>=3.7",
 ]
@@ -25,6 +26,7 @@ vio-iqa-exp001 = "vio_iqa.exp001:main"
 vio-iqa-exp002 = "vio_iqa.exp002:main"
 vio-iqa-exp003 = "vio_iqa.exp003:main"
 vio-iqa-exp0032 = "vio_iqa.exp0032:main"
+vio-iqa-exp004 = "vio_iqa.exp004:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
