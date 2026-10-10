@@ -57,6 +57,9 @@ def read_calibration(sensor_yaml: Path, image_shape: tuple[int, int]):
     fx,fy,cx,cy=intrinsic
     K=np.asarray([[fx,0,cx],[0,fy,cy],[0,0,1]],dtype=np.float64)
     model=p.get("distortion_model")
+    # EuRoC sensor.yaml uses the long name; OpenCV radtan code accepts both.
+    if model == "radial-tangential":
+        model = "radtan"
     dist=np.asarray(p.get("distortion_coefficients",[]),dtype=float)
     if model in ("radtan","equidistant") and dist.shape==(4,):
         pass
