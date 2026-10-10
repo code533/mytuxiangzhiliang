@@ -1,0 +1,15 @@
+[
+  {"name": "clean", "type": "clean"},
+  {"name": "blur_sigma_1p2", "type": "gaussian_blur", "sigma": 1.2},
+  {"name": "blur_sigma_2p4", "type": "gaussian_blur", "sigma": 2.4},
+  {"name": "motion_5_0deg", "type": "motion_blur", "length": 5, "angle_deg": 0},
+  {"name": "motion_11_45deg", "type": "motion_blur", "length": 11, "angle_deg": 45},
+  {"name": "lowlight_0p35", "type": "lowlight", "factor": 0.35},
+  {"name": "lowlight_0p15", "type": "lowlight", "factor": 0.15},
+  {"name": "contrast_0p5", "type": "contrast_loss", "factor": 0.5},
+  {"name": "contrast_0p25", "type": "contrast_loss", "factor": 0.25},
+  {"name": "noise_sigma_10", "type": "gaussian_noise", "sigma": 10},
+  {"name": "noise_sigma_25", "type": "gaussian_noise", "sigma": 25},
+  {"name": "overexposure_1p5", "type": "overexposure", "factor": 1.5},
+  {"name": "overexposure_2p5", "type": "overexposure", "factor": 2.5}
+]

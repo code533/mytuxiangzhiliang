@@ -20,6 +20,7 @@ dev = ["pytest>=7"]
 
 [project.scripts]
 vio-iqa = "vio_iqa.cli:main"
+vio-iqa-exp001 = "vio_iqa.exp001:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
