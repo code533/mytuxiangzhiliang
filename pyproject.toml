@@ -12,6 +12,7 @@ dependencies = [
   "opencv-python-headless>=4.7",
   "pandas>=2.0",
   "scipy>=1.10",
+  "scikit-learn>=1.2",
   "matplotlib>=3.7",
 ]
 
@@ -21,6 +22,7 @@ dev = ["pytest>=7"]
 [project.scripts]
 vio-iqa = "vio_iqa.cli:main"
 vio-iqa-exp001 = "vio_iqa.exp001:main"
+vio-iqa-exp002 = "vio_iqa.exp002:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
