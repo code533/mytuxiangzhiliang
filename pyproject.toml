@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vio-iqa-lab"
+version = "0.1.0"
+description = "Image quality metrics versus next-frame visual tracking quality"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24",
+  "opencv-python-headless>=4.7",
+  "pandas>=2.0",
+  "scipy>=1.10",
+  "matplotlib>=3.7",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+vio-iqa = "vio_iqa.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
