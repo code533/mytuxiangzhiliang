@@ -27,10 +27,10 @@
 
 一个候选评分的概念形式为：
 
-[
-Q_{mathrm{VIO}}=f(Q_{mathrm{gradient}},Q_{mathrm{coverage}},
-Q_{mathrm{corner}},Q_{mathrm{blur}},Q_{mathrm{exposure}},Q_{mathrm{motion}},ldots)
-]
+$$
+Q_{\mathrm{VIO}}=f(Q_{\mathrm{gradient}},Q_{\mathrm{coverage}},
+Q_{\mathrm{corner}},Q_{\mathrm{blur}},Q_{\mathrm{exposure}},Q_{\mathrm{motion}},\ldots)
+$$
 
 上式仅描述输入变量族，**不是预先确定的线性加权公式**。先验证单项指标及其在不同退化类型下的作用，再决定模型结构、是否需要单一分数。
 
@@ -43,13 +43,13 @@ Q_{mathrm{corner}},Q_{mathrm{blur}},Q_{mathrm{exposure}},Q_{mathrm{motion}},ldot
 | 几何测量质量 (Geometric Quality) | 特征能否提供可靠/可观测的位姿约束 | 内点数、残差、视差、信息量 | 后端必然成功更新 |
 | VIO 更新可靠性 (Update Reliability) | 给定前端与后端，视觉更新是否有价值 | 更新一致性、估计误差、失败/漂移事件 | 仅仅“后端接受了更新” |
 
-**输出设计**：研究早期保留 (Q_{mathrm{trackability}}) 与 (Q_{mathrm{geometry}}) 两个输出；只有在数据支持其解释性与校准性时，才考虑合成为一个 (Q_{mathrm{VIO}}in[0,1]) 的概率分数。
+**输出设计**：研究早期保留 $Q_{\mathrm{trackability}}$ 与 $Q_{\mathrm{geometry}}$ 两个输出；只有在数据支持其解释性与校准性时，才考虑合成为一个 $Q_{\mathrm{VIO}}\in[0,1]$ 的概率分数。
 
 ## 2. 输入、预测时点与标签定义
 
 ### 2.1 预测时点：禁止“看未来”
 
-设 $I_t$ 是当前图像，(mathcal H_t) 是截至该时刻可用的历史观测及 IMU。
+设 $I_t$ 是当前图像，$\mathcal H_t$ 是截至该时刻可用的历史观测及 IMU。
 
 - **在线输入 $X_t$**：$I_t$ 的图像质量指标、当前帧已提取的特征分布（若预测节点位于特征检测之后）、相机标定、截至 $t$ 的 IMU 运动摘要、可用的历史状态。
 - **不允许用于预测的输入**：$(I_{t+1},\ldots,I_{t+K})$、下一帧 KLT 结果、未来 IMU、后端更新完成后的残差、完整序列计算的归一化统计、测试序列的未来难度标签。
@@ -62,15 +62,15 @@ Q_{mathrm{corner}},Q_{mathrm{blur}},Q_{mathrm{exposure}},Q_{mathrm{motion}},ldot
 
 在帧 $t$ 选定一组初始候选特征 $\mathcal F_t$，数量 $N_t$。保持特征 ID，不补充新点，逐帧跟踪到 $t+K$，每一步执行预先定义的状态、图像边界和 FB 误差检测（以及后续可选的几何检测）。某点一旦失效，不得“复活”。
 
-[
-S_K$t$=rac{N_{mathrm{survive}}(t,K)}{N_t},quad Kin{5,10}.
-]
+$$
+S_K(t)=\frac{N_{\mathrm{survive}}(t,K)}{N_t},\quad K\in\{5,10\}.
+$$
 
 - $K=5$ 指**从 $t$ 向后连续 5 次帧间转移**，而不是“包含当前帧的 5 张图像”；统一消除 off-by-one 歧义。
 - $N_t=0$ 时存活率记为 **NaN（无定义）**，同时记录 `no_features=1`，并在“是否有足够测量”任务中视为独立失败模式；不得将 NaN 悄悄当作 0 纳入回归。
 - 既报告比例 $S_K$，也报告 $N_t$、$N_{\mathrm{survive}}$ 和空间分布；高比例但只有数个点，不意味着可用视觉约束充足。
 - 标签计算将同时采用**固定空间采样/特征预算**与**无强制 1000 点截断的候选数量对照**，防止选择机制与数量硬上限影响结论。
-- 可选分类任务：(Y_K$t$=mathbb 1[S_K$t$geq 	au_S land N_{mathrm{survive}}geq 	au_N])。阈值在开发数据上固定，并报告敏感性；不得根据测试数据调阈值。
+- 可选分类任务：$Y_K(t)=\mathbb{1}[S_K(t)\geq\tau_S \land N_{\mathrm{survive}}\geq\tau_N]$。阈值在开发数据上固定，并报告敏感性；不得根据测试数据调阈值。
 
 首先尝试预测 $(\hat S_5,\hat S_{10})$（回归），随后检验预测 $P(Y_K=1\mid X_t)$ 的可行性（分类/校准）。它们是**特征跟踪代理目标**，不是最终 VIO 成败真值。
 
@@ -89,9 +89,9 @@ S_K$t$=rac{N_{mathrm{survive}}(t,K)}{N_t},quad Kin{5,10}.
 
 候选定义：
 
-[
-Q_{mathrm{VIO}}$t$=P(Y_{mathrm{update},t}=1mid X_t).
-]
+$$
+Q_{\mathrm{VIO}}(t)=P(Y_{\mathrm{update},t}=1\mid X_t).
+$$
 
 `Y_update` 必须在指定 VIO 系统（例如 OpenVINS）下，以预注册规则定义。可以从更新前后的创新一致性、可信几何测量数、数值条件/滤波一致性与参考轨迹误差等指标构造并交叉核查。**“系统接受更新”单一事件不足以充当更新真实可靠的标签**；也必须区分“系统未触发视觉更新”“更新被拒绝”和“更新质量不佳”。
 
@@ -108,7 +108,7 @@ Q_{mathrm{VIO}}$t$=P(Y_{mathrm{update},t}=1mid X_t).
 5. **分层模型 vs 直接融合模型**：检验分层是否真正增加泛化能力，而非默认分层较好。
 
 评价同时包括：
-- 回归 (hat S_K)：MAE、RMSE、Spearman、分难度区间的误差；
+- 回归 $\hat S_K$：MAE、RMSE、Spearman、分难度区间的误差；
 - 可靠性事件概率：AUROC、AUPRC（低可靠事件稀少时尤重要）、Brier Score、可靠性校准曲线；报告事件阈值及发生率；
 - 实时开销：每帧计算耗时、内存、特征检测额外开销；
 - 干预实验：frame rejection、keyframe selection、feature-budget allocation、measurement covariance weighting 的实际 VIO 收益，不以预测分数自身提高为最终胜利条件。
@@ -143,7 +143,7 @@ Q_{mathrm{VIO}}$t$=P(Y_{mathrm{update},t}=1mid X_t).
 | **EXP002（下一优先）** | 仅当前图像能否预测未来 5/10 帧存活？ | track ID 链、(S_5,S_{10}) 标签、回归/分类基线 | 完整序列留出、无未来信息泄漏、有无特征和空间分布处理、与单指标 baseline 比较 |
 | **EXP003** | 截至 $t$ 的 IMU 信息能否提升预测？ | 时间同步、过去时间窗运动统计、消融实验 | 相同数据划分与训练协议下，报告 image-only vs image+IMU |
 | **EXP004** | 存活率是否能预测真正有约束价值的几何测量？ | 内点率、视差、残差、退化标记、几何质量标签 | 至少在一个独立场景中与纯 KLT 标签比较 |
-| **EXP005** | 能否产生可解释、校准且泛化的 VIO quality predictor？ | (Q_{mathrm{trackability}})、(Q_{mathrm{geometry}})、候选 (Q_{mathrm{VIO}}) | 概率校准/域外验证/低计算成本均优于或不劣于可靠 baseline |
+| **EXP005** | 能否产生可解释、校准且泛化的 VIO quality predictor？ | $Q_{\mathrm{trackability}}$、$Q_{\mathrm{geometry}}$、候选 $Q_{\mathrm{VIO}}$ | 概率校准/域外验证/低计算成本均优于或不劣于可靠 baseline |
 | **EXP006** | 质量预测能否改善 VIO 运行效果？ | 与具体 VIO 的 frame/measurement 策略集成、ATE/RPE、失败率、耗时 | 固定预算和公平参数的消融；报告收益、代价及失败案例 |
 
 > 各阶段的具体阈值、算法超参数和数据划分必须在对应实验协议中版本化。EXP002 与 EXP001.1 可以部分并行，但在数据标签定义固定前不要宣布预测性能结论。
