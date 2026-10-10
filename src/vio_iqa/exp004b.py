@@ -65,7 +65,22 @@ class GTPose:
 def camera_extrinsic(sensor):
     val=yaml.safe_load(Path(sensor).read_text(encoding="utf8")).get("T_BS")
     if val is None:raise ValueError("Missing T_BS in EuRoC camera sensor.yaml")
-    T=np.asarray(val,float)
+    # EuRoC/kalibr YAML encodes matrices as {rows: 4, cols: 4, data: [...]}
+    # in row-major order. Also retain support for an explicit 4x4 list.
+    if isinstance(val, dict):
+        try:
+            rows, cols = int(val["rows"]), int(val["cols"])
+            raw = np.asarray(val["data"], dtype=float)
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("Invalid EuRoC T_BS matrix mapping; expected rows/cols/data") from exc
+        if rows != 4 or cols != 4 or raw.size != 16 or raw.ndim != 1:
+            raise ValueError("EuRoC T_BS must describe a 4x4 row-major matrix")
+        T = raw.reshape(4, 4)
+    else:
+        try:
+            T = np.asarray(val, dtype=float)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Invalid camera extrinsic T_BS") from exc
     if T.shape!=(4,4) or not np.isfinite(T).all():
         raise ValueError("Invalid camera extrinsic T_BS")
     if not np.allclose(T[3,:],[0,0,0,1],atol=1e-6):
