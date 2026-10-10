@@ -149,12 +149,27 @@ def check_matches(p0,p1,K,D,model,R,t,baseline_min,epi_px):
 def evaluate(args):
     sequence=Path(args.sequence)
     source=Path(args.exp004_dir)
-    cam,index=load_index(sequence)
+    # EXP004-A already records the exact sequence root used to read images.
+    # If a mistyped --sequence is supplied, print that known-good path rather
+    # than misleadingly suggesting EuRoC lacks the "mav0" directory.
+    manifest=json.loads((source/"manifest.json").read_text())
+    try:
+        cam,index=load_index(sequence)
+    except FileNotFoundError as exc:
+        candidates=[sequence/"mav0"/"cam0"/"data.csv",sequence/"cam0"/"data.csv"]
+        expected=manifest.get("sequence", "<unknown>")
+        raise FileNotFoundError(
+            "EXP004-B could not locate the EuRoC camera index at either: "
+            + ", ".join(map(str,candidates))
+            + f". EXP004-A successfully used --sequence {expected!s}; "
+            + "reuse that exact path, or find the dataset's cam0/data.csv."
+        ) from exc
     sensor=Path(args.calibration) if args.calibration else cam/"sensor.yaml"
-    gt_file=Path(args.gt_csv) if args.gt_csv else sequence/"mav0"/"state_groundtruth_estimate0"/"data.csv"
+    # Support both full EuRoC root (.../sequence/mav0/cam0) and the mav0
+    # directory itself (.../mav0/cam0), just like load_index().
+    gt_file=Path(args.gt_csv) if args.gt_csv else cam.parent/"state_groundtruth_estimate0"/"data.csv"
     original=pd.read_csv(source/"frame_geometry.csv",dtype={"t_ns":"int64"})
     matches=pd.read_csv(source/"geometry_matches.csv")
-    manifest=json.loads((source/"manifest.json").read_text())
     if Path(manifest["sequence"]).name!=sequence.name or set(original.sequence)!={sequence.name}:
         raise ValueError("EXP004-A outputs must match the requested sequence")
     if not set(matches.sequence).issubset({sequence.name}):
