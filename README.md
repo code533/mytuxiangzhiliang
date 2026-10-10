@@ -91,3 +91,7 @@ FB 一致性不是地面真实的匹配正确性。高成功率也可能仅来�
 ## EXP004-A：标定几何一致性与多帧存活关系
 
 新增 `vio-iqa-exp004 extract/report`，沿用 EXP002 固定特征组和逐帧 KLT，同时导出带 ID 的多帧轨迹、5/10 帧几何对应、EuRoC 标定畸变校正后的 Essential RANSAC 内点率、Sampson 残差、正深度比例和旋转补偿视差。此处几何模型由同一批匹配点自估，**不是独立几何真值**。详见 [EXP004-A 实验协议](experiments/exp004/README.md)。
+
+## EXP004-B：独立 EuRoC 参考几何验证
+
+新增 `vio-iqa-exp004b`，使用已保存的 KLT 匹配、EuRoC 真实位姿和相机—IMU 外参计算独立的极线一致性、参考平移基线和视差，不需要重新运行 EXP004-A。低基线和缺失 GT 分别标记，不误判为匹配失败。见 [EXP004-B 运行协议](experiments/exp004b/README.md)。
