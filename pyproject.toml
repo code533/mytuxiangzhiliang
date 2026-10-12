@@ -29,6 +29,7 @@ vio-iqa-exp0032 = "vio_iqa.exp0032:main"
 vio-iqa-exp004 = "vio_iqa.exp004:main"
 vio-iqa-exp004b = "vio_iqa.exp004b:main"
 vio-iqa-exp004b1 = "vio_iqa.exp004b1:main"
+vio-iqa-exp005a = "vio_iqa.exp005a:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
